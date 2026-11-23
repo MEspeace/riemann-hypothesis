@@ -243,8 +243,10 @@ class RunnerChecks(unittest.TestCase):
             self.assertIn("Environment=RH_CI_MEMORY_GIB=384\n", contents)
             service = Path(name) / "rh-runner-test.service"
             service.write_text(contents)
+            # User-unit verification needs a runtime directory even without a running user manager.
+            environment = os.environ | {"XDG_RUNTIME_DIR": os.environ.get("XDG_RUNTIME_DIR") or name}
             result = subprocess.run(["systemd-analyze", "--user", "verify", str(service)],
-                                    capture_output=True, text=True)
+                                    capture_output=True, text=True, env=environment)
             self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_service_resource_options_reject_invalid_limits_without_emitting_a_unit(self):
