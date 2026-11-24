@@ -19,6 +19,15 @@ runner = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(runner)
 
 
+def runtime_directory(fallback):
+    """Return the inherited XDG_RUNTIME_DIR if it is an absolute, writable, searchable directory, else fallback."""
+    inherited = os.environ.get("XDG_RUNTIME_DIR")
+    if (inherited and os.path.isabs(inherited) and os.path.isdir(inherited)
+            and os.access(inherited, os.W_OK | os.X_OK)):
+        return inherited
+    return fallback
+
+
 class RunnerChecks(unittest.TestCase):
     def test_missing_elan_is_a_failed_required_command(self):
         with tempfile.TemporaryDirectory() as name:
@@ -243,11 +252,35 @@ class RunnerChecks(unittest.TestCase):
             self.assertIn("Environment=RH_CI_MEMORY_GIB=384\n", contents)
             service = Path(name) / "rh-runner-test.service"
             service.write_text(contents)
-            # User-unit verification needs a runtime directory even without a running user manager.
-            environment = os.environ | {"XDG_RUNTIME_DIR": os.environ.get("XDG_RUNTIME_DIR") or name}
+            # User-unit verification needs a usable runtime directory even without a running user manager.
+            environment = os.environ | {"XDG_RUNTIME_DIR": runtime_directory(name)}
             result = subprocess.run(["systemd-analyze", "--user", "verify", str(service)],
                                     capture_output=True, text=True, env=environment)
             self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_runtime_directory_is_inherited_only_when_usable(self):
+        with tempfile.TemporaryDirectory() as name, patch.dict(os.environ):
+            fallback, usable, regular = str(Path(name) / "fallback"), Path(name) / "usable", Path(name) / "file"
+            usable.mkdir(mode=0o700)
+            regular.touch(mode=0o700)
+            os.environ.pop("XDG_RUNTIME_DIR", None)
+            self.assertEqual(runtime_directory(fallback), fallback)
+            for value, expected in (("", fallback), (".", fallback), (str(Path(name) / "missing"), fallback),
+                                    (str(regular), fallback), (str(usable), str(usable))):
+                with self.subTest(value=value):
+                    os.environ["XDG_RUNTIME_DIR"] = value
+                    self.assertEqual(runtime_directory(fallback), expected)
+
+    @unittest.skipIf(os.getuid() == 0, "root ignores directory mode bits")
+    def test_runtime_directory_rejects_an_inherited_directory_without_write_or_search(self):
+        with tempfile.TemporaryDirectory() as name, patch.dict(os.environ):
+            locked = Path(name) / "locked"
+            locked.mkdir(mode=0o700)
+            os.environ["XDG_RUNTIME_DIR"] = str(locked)
+            for mode in (0o500, 0o600):
+                with self.subTest(mode=oct(mode)):
+                    locked.chmod(mode)
+                    self.assertEqual(runtime_directory(name), name)
 
     def test_service_resource_options_reject_invalid_limits_without_emitting_a_unit(self):
         with tempfile.TemporaryDirectory() as name:
