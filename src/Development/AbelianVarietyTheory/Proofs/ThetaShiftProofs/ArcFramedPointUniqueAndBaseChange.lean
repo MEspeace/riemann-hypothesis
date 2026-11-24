@@ -1,14 +1,14 @@
 module
 
-import Development.AbelianVarietyTheory.Proofs.ThetaShiftProofs.IsLocalRingThick
 public import Development.AbelianVarietyTheory.Definitions.ArchimedeanThetaValues.IsFramedPointChangedByLetters
 public import Development.AbelianVarietyTheory.Proofs.GenericRegularity.ExistsPChartOfFramedPoint
 public import ReciprocityTheory.ReductiveGroups.ArithmeticGeometry.ExtensionDescent.SecBaseChangeAnySt
-import Development.AbelianVarietyTheory.Proofs.CuspFormEvaluations.FramedPointBaseChangeLaws
 public import Development.AbelianVarietyTheory.Proofs.GenericRegularity.ModelChartLiftCoordsGeneratorIndep
-public import Development.AbelianVarietyTheory.Proofs.ThetaShiftProofs.ExistsUniqueConstantTangentVectorsAlongArcStatement
-public import Development.AbelianVarietyTheory.Proofs.ThetaShiftProofs.ExistsUniqueThetaOfStatement
+public import Development.AbelianVarietyTheory.Proofs.ThetaShiftProofs.ExistsUniqueConstantTangentVectorsAlongArc
+public import Development.AbelianVarietyTheory.Proofs.ThetaShiftProofs.ExistsUniqueThetaOf
 public import Development.AbelianVarietyTheory.Proofs.ThetaShiftProofs.IsoEqOfMapsAlongSection
+import Development.AbelianVarietyTheory.Proofs.ThetaShiftProofs.IsLocalRingThick
+import Development.AbelianVarietyTheory.Proofs.CuspFormEvaluations.FramedPointBaseChangeLaws
 import Formalism.LocalToGlobal.ProjectiveLattices.ThetaFramePf
 import Mathlib.Algebra.Order.Floor.Extended
 import Mathlib.Algebra.Order.Floor.Semifield
@@ -296,7 +296,7 @@ theorem isArcFr_unique_baseChange : Out.Laws → Out.Laws2 → ∀ (E : Type) [F
   intro hL hL2 E _ _ _ H Dw l Xo c O _ β Y A _ _ _ _ b a χ W e th hth S _ _ ι y hy
   refine ⟨fun hj y' hy' => FrUniq.unique W e th hL.globalFns (fun τ k v v' => ?_) (fun θ θ' => ?_) ι y y' hj hy hy',
     fun _ T _ _ φ y₁ hm => FrUniq.baseChange W e th ι y hy φ y₁ hm⟩
-  · exact (GlobalTheory.T.exists_unique_constant_tangent_vectors_along_arc hL.globalFns E H Dw l Xo c O β Y A b a χ W (e τ k)).1.unique
-  · exact (GlobalTheory.T.existsUnique_thetaOf_alt hL hL2 E H Dw l Xo c O β Y A b a χ W th hth).1.unique
+  · exact (_root_.GlobalTheory.ConstLie.main hL.globalFns E H Dw l Xo c O β Y A b a χ W (e τ k)).1.unique
+  · exact (_root_.GlobalTheory.existsUnique_thetaOf hL hL2 E H Dw l Xo c O β Y A b a χ W th hth).1.unique
 
 end GlobalTheory.ArcQ

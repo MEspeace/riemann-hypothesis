@@ -69,8 +69,6 @@ private lemma gs_eq_stalkMap_germ {X Y : Scheme.{0}} (f : Y ⟶ X) (y : Y) (U : 
   rw [gs, dif_pos hy]
   first
     | exact (Scheme.Hom.germ_stalkMap_apply f U y hy a).symm
-    | (erw [Scheme.Hom.germ_stalkMap_apply])
-    | (erw [Scheme.Hom.germ_stalkMap_apply]; rfl)
 
 theorem sval_scal {X Y Y' Z : Scheme.{0}} {L : LB X} {K K' : Type} [Fintype K] [Fintype K'] {φ₁ : K → (Y' ⟶ X)}
     {ε₁ : K → ℤ} {s₁ : LB.Sec (LB.LinComb L φ₁ ε₁)} {φ₂ : K' → (Y ⟶ X)} {ε₂ : K' → ℤ} {s₂ : LB.Sec (LB.LinComb L φ₂ ε₂)}
@@ -158,14 +156,8 @@ theorem cst_stalkMap {V : Type} [CommRing V] {X Z : Scheme.{0}} (r : Z ⟶ X) (p
     | (erw [Scheme.Hom.germ_stalkMap_apply]; rfl)
     | (rw [Scheme.stalkMap_germ_apply]; rfl)
     | (simp [Scheme.Hom.germ_stalkMap_apply, Scheme.comp_app])
-    | (have e := congrArg (fun g => g.hom ((p.app ⊤).hom ((Scheme.ΓSpecIso (CommRingCat.of V)).inv.hom a)))
-          (Scheme.Hom.germ_stalkMap r (p ⁻¹ᵁ ⊤) z hp)
-       simpa using e)
 
-theorem gs_sum {X Z : Scheme.{0}} (r : Z ⟶ X) (z : Z) (U : X.Opens) (h : r z ∈ U) {n : ℕ} (a : Fin n → Γ(X, U)) :
-    gs r z U (∑ i, a i) = ∑ i, gs r z U (a i) := by
-
-  simp [gs, h, map_sum]
+alias gs_sum := _root_.ReciprocityTheory.ChartRestriction.G.DVR.SectionScalarValuation.gs_sum
 
 theorem gs_spec {A C : Type} [CommRing A] [CommRing C] (φ : A →+* C) (z : Sp C) (a : A) :
     cst (spMap φ) z a = cst (𝟙 _) z (φ a) := by

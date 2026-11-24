@@ -1,11 +1,12 @@
 module
 
-import CompanionTheory.RealGroups.GeneralUnitaryRepresentations.ArchimedeanJacquetSegments.ComapTwKer
 public import Development.WeilBound.RepresentationTheoryGL.GenericUnitaryGL.ComplementarySeries.Complementary
 public import Development.WeilBound.CoreStatements.TemperedRepresentationTheory.MirabolicDerivatives.UnipotentDerivatives.DerUnipLeUnipB
-public import Development.AutomorphicSpectrum.Proofs.BlockDecomposition.MirabolicTwistedKernelDerivativeZeroStatement
-public import Development.AutomorphicSpectrum.Proofs.BlockDecomposition.RestrictionMirabolicTwistedKernelStatement
+public import Development.WeilBound.CoreStatements.TemperedRepresentationTheory.MirabolicDerivatives.ColMatMulGlEmbMat
+public import Development.AutomorphicSpectrum.Proofs.BlockDecomposition.MirabolicTwistedKernelDerivativeZero
+public import Development.AutomorphicSpectrum.Proofs.BlockDecomposition.RestrictionMirabolicTwistedKernel
 public import Development.AutomorphicSpectrum.Proofs.BlockDecomposition.TwistedJacquetPhiMinusEquiv
+import CompanionTheory.RealGroups.GeneralUnitaryRepresentations.ArchimedeanJacquetSegments.ComapTwKer
 import Mathlib.Algebra.Order.Floor.Extended
 import Mathlib.Algebra.Order.Floor.Semifield
 import Mathlib.Algebra.Order.Interval.Basic
@@ -93,7 +94,7 @@ theorem ker_Q (ψ : AddChar k Circle) {n : ℕ} : ∀ (j : ℕ) (τ : MRep k (n 
   | 0, τ => by
     show LinearMap.ker (twKer τ.ρ (MirUin k n) 1).mkQ = _
     rw [Submodule.ker_mkQ]
-    exact GlobalTheory.T.mirabolic_twisted_kernel_derivative_zero k ψ n τ.V τ.ρ
+    exact _root_.GlobalTheory.CompanionTheory.BZMir.twKer_MirUin_eq_derUnipM k ψ n τ.V τ.ρ
   | j + 1, τ => by
     have hnm : n ≤ n + j := Nat.le_add_right n j
     have H := comap_twKer τ.ρ (MirUin k (n + j + 1)) (mirChar k ψ (n + j)) (phiMinus k ψ τ.ρ)
@@ -140,12 +141,12 @@ theorem E_val_succ {n j : ℕ} (g : GL (Fin n) k)
     have : ¬ ((n + j + 1 : ℕ) < n) := by omega
     induction l using Fin.lastCases with
     | last => simp [glEmbMat, this]
-    | cast l => simp [glEmbMat, Matrix.one_apply, (Fin.castSucc_ne_last l).symm, this]
+    | cast l => simp [glEmbMat, (Fin.castSucc_ne_last l).symm, this]
   | cast i =>
     induction l using Fin.lastCases with
     | last =>
       have : ¬ ((n + j + 1 : ℕ) < n) := by omega
-      simp [glEmbMat, Matrix.one_apply, Fin.castSucc_ne_last, this]
+      simp [glEmbMat, Fin.castSucc_ne_last, this]
     | cast l =>
       simp only [glEmbMat, Fin.lastCases_castSucc]
       rw [ih i l]
@@ -169,7 +170,7 @@ theorem stdSum_inj {n t N : ℕ} (h : n + t = N) {a b : Fin n ⊕ Fin t} : stdSu
 
 theorem one_std {n t N : ℕ} (h : n + t = N) (a b : Fin n ⊕ Fin t) :
     (1 : Matrix (Fin N) (Fin N) k) (stdSum h a) (stdSum h b) = (1 : Matrix (Fin n ⊕ Fin t) (Fin n ⊕ Fin t) k) a b := by
-  simp [Matrix.one_apply, stdSum_inj]
+  simp [Matrix.one_apply]
 
 theorem E_eq {n j : ℕ} (g : GL (Fin n) k) :
     ((E k j g : Mir k (n + j)) : GL (Fin (n + j + 1)) k) =

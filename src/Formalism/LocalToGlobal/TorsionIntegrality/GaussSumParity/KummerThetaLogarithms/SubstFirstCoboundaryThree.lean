@@ -45,6 +45,7 @@ import Mathlib.Tactic.NormNum.Prime
 import Mathlib.Tactic.NormNum.RealSqrt
 import Mathlib.Tactic.ReduceModChar
 import Mathlib.Topology.Sheaves.Init
+import Formalism.ThetaLogCoordinates.UniformThetaSubstitution.FinalS
 
 @[expose] public section
 
@@ -70,11 +71,11 @@ private theorem hasSubst_finite_of_constantCoeff_eq_zero {σ τ : Type} [Finite 
 
 theorem hs2 {τ : Type} {a b : MvPowerSeries τ K} (ha : constantCoeff a = 0)
     (hb : constantCoeff b = 0) : HasSubst ![a, b] := by
-  exact hasSubst_finite_of_constantCoeff_eq_zero fun i => by fin_cases i <;> first | exact ha | exact hb | simp [ha, hb]
+  exact hasSubst_finite_of_constantCoeff_eq_zero fun i => by fin_cases i <;> first | exact ha | exact hb
 
 theorem hs3 {τ : Type} {a b c : MvPowerSeries τ K} (ha : constantCoeff a = 0)
     (hb : constantCoeff b = 0) (hc : constantCoeff c = 0) : HasSubst ![a, b, c] := by
-  exact hasSubst_finite_of_constantCoeff_eq_zero fun i => by fin_cases i <;> first | exact ha | exact hb | exact hc | simp [ha, hb, hc]
+  exact hasSubst_finite_of_constantCoeff_eq_zero fun i => by fin_cases i <;> first | exact ha | exact hb | exact hc
 
 theorem subst_subst1 {ι κ : Type} {b : ι → MvPowerSeries κ K} (hb : HasSubst b)
     {a : MvPowerSeries ι K} (ha : PowerSeries.HasSubst a) (f : PowerSeries K) :
@@ -114,8 +115,6 @@ theorem ps_comp {τ : Type} {a : MvPowerSeries τ K} (ha : constantCoeff a = 0) 
 theorem cc_lgF {l : ℕ} (_hl : 2 ≤ l) : PowerSeries.constantCoeff (lgF K l) = 0 := by
   first
   | simp [lgF]
-  | (rw [← PowerSeries.coeff_zero_eq_constantCoeff_apply]; simp [lgF])
-  | (show PowerSeries.coeff 0 (lgF K l) = 0; simp [lgF])
 
 theorem exp_log (hE : ExpSpec) {l : ℕ} (hl : 2 ≤ l) {τ : Type} {a : MvPowerSeries τ K}
     (ha : constantCoeff a = 0) :
@@ -167,16 +166,6 @@ theorem log_law {l : ℕ} {F : MvPowerSeries (Fin 2) K} (hF0 : constantCoeff F =
     subst_single_var h2, subst_single_var h2] at h
   exact h
 
-private theorem constantCoeff_in3_eq_zero {F : MvPowerSeries (Fin 2) K} (hF0 : constantCoeff F = 0) :
-    constantCoeff (in3 F) = 0 := by
-  unfold in3
-  have hx : ∀ i : Fin 2, constantCoeff (![(X 0 : MvPowerSeries (Fin 3) K), X 1] i) = 0 := by
-    intro i; fin_cases i <;> simp
-  first
-  | exact constantCoeff_subst_eq_zero hx F hF0
-  | exact constantCoeff_subst_eq_zero (hasSubst_finite_of_constantCoeff_eq_zero hx) hx hF0
-  | (apply constantCoeff_subst_eq_zero <;> first | assumption | exact hasSubst_finite_of_constantCoeff_eq_zero hx)
-
 theorem subst_first_coboundary_three {F : MvPowerSeries (Fin 2) K} (hF0 : constantCoeff F = 0) {τ : Type}
     {a b c : MvPowerSeries τ K} (ha : constantCoeff a = 0) (hb : constantCoeff b = 0)
     (hc : constantCoeff c = 0) (H : MvPowerSeries (Fin 2) K) :
@@ -188,12 +177,12 @@ theorem subst_first_coboundary_three {F : MvPowerSeries (Fin 2) K} (hF0 : consta
     unfold in3
     rw [subst2_comp h3 (hX 0) (hX 1)]
     simp only [subst_X h3]
-    first | rfl | simp
+    first | rfl
   unfold d1
-  rw [mvSubst_sub h3, mvSubst_sub h3, subst2_comp h3 (constantCoeff_in3_eq_zero hF0) (hX 2),
+  rw [mvSubst_sub h3, mvSubst_sub h3, subst2_comp h3 (_root_.Formalism.InvariantFactorPaths.G7.GramFrameCompositionLinFacts.constantCoeff_law_first_two_of_three hF0) (hX 2),
     subst2_comp h3 (hX 0) (hX 2), subst2_comp h3 (hX 1) (hX 2), e1]
   simp only [subst_X h3]
-  first | rfl | simp
+  first | rfl
 
 theorem subst_swap2 {τ : Type} {a b : MvPowerSeries τ K} (ha : constantCoeff a = 0)
     (hb : constantCoeff b = 0) (H : MvPowerSeries (Fin 2) K) :
@@ -203,7 +192,7 @@ theorem subst_swap2 {τ : Type} {a b : MvPowerSeries τ K} (ha : constantCoeff a
   unfold swap2
   rw [subst2_comp h2 (hX 1) (hX 0)]
   simp only [subst_X h2]
-  first | rfl | simp
+  first | rfl
 
 def mulF (K : Type) [Field K] (l : ℕ) (c : K) : PowerSeries K :=
   PowerSeries.subst (PowerSeries.C c * lgF K l) (expF K l)
@@ -220,7 +209,6 @@ theorem isMul_mulF (hE : ExpSpec) {l : ℕ} (hl : 2 ≤ l) (c : K) : IsMul l c (
   rw [(hE K l hl).2.1] at h1
   first
   | exact h1.trans (PowerSeries.subst_X (PowerSeries.HasSubst.of_constantCoeff_zero (cc_C_mul_lgF hl c)))
-  | (unfold mulF; rw [h1]; simp [PowerSeries.subst_X, PowerSeries.HasSubst.of_constantCoeff_zero (cc_C_mul_lgF hl c)])
 
 private theorem powerSeries_subst_C_mul {τ : Type} {a : MvPowerSeries τ K} (ha : constantCoeff a = 0)
     (c : K) (f : PowerSeries K) :

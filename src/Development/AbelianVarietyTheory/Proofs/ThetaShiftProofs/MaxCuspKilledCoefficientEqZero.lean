@@ -1,9 +1,9 @@
 module
 
-import Development.AbelianVarietyTheory.Proofs.ThetaShiftProofs.CuspFlowEqTorusAction
+public import Development.AbelianVarietyTheory.Proofs.ThetaShiftProofs.CuspFlowEqTorusAction
 public import Formalism.LocalToGlobal.ProjectiveLattices.ArchimedeanQuadraticData.MaximalCuspKernels.MaxCuspsSt
 public import Development.AbelianVarietyTheory.Proofs.ThetaShiftProofs.CountableOfIsAddFundamentalDomain
-public import Development.AbelianVarietyTheory.Proofs.ThetaShiftProofs.CuspFlowEqTorusActionStatement
+public import ReciprocityTheory.ReductiveGroups.ArithmeticGeometry.FundamentalDomains.PeriodLatticeCountable
 import Formalism.LocalToGlobal.ProjectiveLattices.ArchimedeanQuadraticData.MaximalCuspKernels.MaxCuspsPfA
 import Formalism.LocalToGlobal.ProjectiveLattices.RdOrbIntOfLatZ
 import Mathlib.Algebra.Order.Floor.Extended
@@ -51,7 +51,6 @@ import Mathlib.Tactic.NormNum.RealSqrt
 import Mathlib.Tactic.Polynomial.Basic
 import Mathlib.Tactic.ReduceModChar
 import Mathlib.Topology.Sheaves.Init
-public import ReciprocityTheory.ReductiveGroups.ArithmeticGeometry.FundamentalDomains.PeriodLatticeCountable
 
 @[expose] public section
 
@@ -98,7 +97,7 @@ theorem coefFn_eq_zero_of_killed : ∀ (E : Type) [Field E] [NumberField E] [IsC
   have hsec : X.IsSec la P := hP.1.1.1
   have hdom : ∀ u, zAct X cu u x ∈ X.dom := fun u =>
     zAct_mem_dom X cu (zBas_skew X cu (hbas cu)) u x hx
-  obtain ⟨L, hL1, hL2, hL3⟩ := GlobalTheory.T.cuspFlow_eq_torusAction E r ρ X cu hb η hηΛ
+  obtain ⟨L, hL1, hL2, hL3⟩ := _root_.GlobalTheory.CuspFlow.flow_eq_zAct E r ρ X cu hb η hηΛ
   have hiso : X.IsIso (∑ a, η a • cu.e a) :=
     ⟨hηΛ, herm_comb cu η, fun h => hη0 (funext (Fintype.linearIndependent_iff.1 cu.ind η h))⟩
   set ν : X.Ψ → ℝ := fun τ => (τ.1 (hq χ η)).re with hν

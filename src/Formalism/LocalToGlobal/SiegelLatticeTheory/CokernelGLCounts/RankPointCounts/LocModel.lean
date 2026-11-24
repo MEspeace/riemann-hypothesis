@@ -220,7 +220,6 @@ theorem mem_of_isIntegral_fp (L : LocAt F E sig p) {s : L.Fp} (hs : IsIntegral �
   have hv := Valuation.integer.integers (ValuativeRel.valuation L.Fp)
   first
   | exact hv.mem_of_integral hs
-  | (obtain ⟨t, rfl⟩ := hv.mem_of_integral hs; exact t.2)
 
 theorem isIntegral_zl (L : LocAt F E sig p) {s : L.Fp} (hs : s ∈ 𝒪[L.Fp]) :
     haveI := L.ellPrime
@@ -768,13 +767,6 @@ theorem inv_intCast_mem (p : PlF D) (n : ℤ) (hn : ((n : 𝓞 D.host.F)) ∉ p.
     rw [e, IsDedekindDomain.HeightOneSpectrum.valuation_of_algebraMap]
     first
     | exact (IsDedekindDomain.HeightOneSpectrum.intValuation_eq_one_iff (v := p)).2 hn
-    | (apply le_antisymm (p.intValuation_le_one _)
-       rw [← not_lt, IsDedekindDomain.HeightOneSpectrum.intValuation_lt_one_iff_mem]
-       exact hn)
-    | (apply le_antisymm (p.intValuation_le_one _)
-       rw [← not_lt, IsDedekindDomain.HeightOneSpectrum.intValuation_lt_one_iff_dvd,
-         Ideal.dvd_span_singleton]
-       exact hn)
   rw [memO_iff, ← map_inv₀, ← map_one (D.s.atP p).ιF, (D.s.atP p).val, map_one, map_inv₀, hv]
   all_goals simp
 
@@ -793,8 +785,6 @@ theorem iotaIntegral_almost_all : IotaIntCof := by
     | (obtain ⟨⟨m, hm⟩, hmx⟩ := IsIntegral.exists_multiple_integral_of_isLocalization
           (nonZeroDivisors ℤ) x (Algebra.IsIntegral.isIntegral (R := ℚ) x)
        exact ⟨m, nonZeroDivisors.ne_zero hm, by simpa [Submonoid.smul_def, Submonoid.mk_smul, zsmul_eq_mul] using hmx⟩)
-    | (obtain ⟨m, hm, hmx⟩ := (Algebra.IsAlgebraic.isAlgebraic (R := ℤ) x).exists_integral_multiple
-       exact ⟨m, hm, by simpa [zsmul_eq_mul] using hmx⟩)
   filter_upwards [(intMem_finite (D := D) m hm0).compl_mem_cofinite] with p hp
   have hmp : ((m : 𝓞 D.host.F)) ∉ p.asIdeal := hp
   have hmE : ((m : D.host.E)) ≠ 0 := by exact_mod_cast hm0
@@ -1229,18 +1219,6 @@ theorem cls_of_nIso (M : Loc.Model F E) {m : ℕ} (ZZ : M.Mat (m + 1)) (c : M.Cl
   exact (Quotient.sound (s := M.isoSetoid m) (show Nonempty (M.Iso ZZ (Quotient.out c)) from ⟨φ⟩)).trans
     (Quotient.out_eq (s := M.isoSetoid m) c)
 
-theorem uLow_det {n : ℕ} (x : Loc.IL n → E) : (Loc.uLow x).det = 1 := by
-  rw [Matrix.det_of_lowerTriangular _ (fun i j hij => by
-    have h' : i < j := OrderDual.toDual_lt_toDual.1 hij
-    simp [Loc.uLow, h'.ne, not_lt.2 h'.le])]
-  simp [Loc.uLow]
-
-theorem uUp_det {n : ℕ} (w : Loc.Pt E n) (y : Loc.IN w → E) : (Loc.uUp w y).det = 1 := by
-  rw [Matrix.det_of_upperTriangular (fun i j hij => by
-    have h' : j < i := hij
-    simp [Loc.uUp, h'.ne', not_lt.2 h'.le])]
-  simp [Loc.uUp]
-
 theorem cls_of_bb_ne (M : Loc.Model F E) {m : ℕ} (a : Loc.Pt E (m + 1)) (c : M.Cls m) (h : M.BB a c ≠ 0) :
     ∃ ZZ : M.Mat (m + 1), ((ZZ.Z.det : M.R) : E) = a.mat.det ∧ Quotient.mk (M.isoSetoid m) ZZ = c := by
   by_contra hno
@@ -1260,7 +1238,7 @@ theorem cls_of_bb_ne (M : Loc.Model F E) {m : ℕ} (a : Loc.Pt E (m + 1)) (c : M
       have e : M.R.subtype.mapMatrix (Matrix.of fun i j =>
           (⟨(Loc.uLow xy.1 * a.mat * Loc.uUp a xy.2) i j, hZ.1 i j⟩ : M.R)) =
           Loc.uLow xy.1 * a.mat * Loc.uUp a xy.2 := by ext; rfl
-      rw [e, Matrix.det_mul, Matrix.det_mul, uLow_det, uUp_det, one_mul, mul_one]
+      rw [e, Matrix.det_mul, Matrix.det_mul, _root_.Formalism.L2.SG.Pf.det_uLow, _root_.Formalism.L2.SG.Pf.det_uUp, one_mul, mul_one]
     · rfl
   rw [hz, integral_zero]
 
@@ -1276,7 +1254,7 @@ theorem bb_glr (M : Loc.Model F E) (hOK : M.OK) (hψ : ∀ x ∈ M.R, M.psiR x =
   haveI := hs1
   haveI := hs2
   rw [Formalism.DoubleCosetMeasures.Final.bbNorm E M.R hD.isOpen _ _ M.psiR hψ μ₁ μ₂ hv1 hv2 _ _ _
-    (Formalism.DoubleCosetMeasures.Final.suppCompact E M.R hD.isOpen hD.isCompact _ _ _ _ _ _)]
+    (_root_.Formalism.DoubleCosetMeasures.P.suppCompact E M.R hD.isOpen hD.isCompact _ _ _ _ _ _)]
   have hg := Formalism.MainNotions.LocalModelPeriodLattices.inGLR_tr a ha
   rw [finsum_eq_single _ (Formalism.FourierDecayAlt.P.A5x7.cos1 M.R (Formalism.MainNotions.LocalModelPeriodLattices.tr a))]
   · have c1 := (Formalism.FourierDecayAlt.P.A5x7.cos_eq_iff M.R _ (Formalism.FourierDecayAlt.P.A5x7.cos1 M.R (Formalism.MainNotions.LocalModelPeriodLattices.tr a))).mp rfl
@@ -1825,12 +1803,10 @@ theorem placesOver_holds (D : Formalism.BasicNotions.D7) : PlacesOver D := place
 theorem topUnram_holds (D : Formalism.BasicNotions.D7) : TopUnram D := by
   first
   | exact LocModel.topUnram_body D
-  | (intro δ M hA T T'; exact LocModel.topUnram_body D δ M hA T T')
 
 theorem alpBound_holds (D : Formalism.BasicNotions.D7) : AlpBound D := by
   first
   | exact LocModel.alpBound_body D
-  | (intro hk u u' p; exact LocModel.alpBound_body D hk u u' p)
 
 end Formalism.L2.SG.Pf
 
